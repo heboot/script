@@ -1,0 +1,139 @@
+
+Dim intX,intY,返回值,jiemaToken,jiemaPhone
+
+
+
+
+Call main()
+
+
+Function main()
+	call loginJiema()
+End Function
+
+Function openDzh()
+	Delay 500
+	RunApp "com.android.dazhihui"
+	Call toMy()
+End Function
+
+
+//去我的页面
+Function toMy()
+	Delay 3000
+	Do
+		Delay 1000
+		KeepCapture
+		FindPic 0,0,0,0,"Attachment:index_msg.png","000000",0,0.9,intX,intY
+		If intX> -1 And intY > -1 Then
+		 	KeepCapture
+			返回值 = FindPic (0,0,0,0,"Attachment:icon_user_star.png|Attachment:my.png","000000",0,0.9,intX,intY)
+			If intX > -1 And intY > -1 Then 
+				If 返回值 = 1 Then 
+					Tap intX, intY
+					Delay 500
+					Call clickMyLogin()
+				Else 
+					Tap intX, intY
+		 	 		Call findLogout()
+				End If
+		 	 	Exit Do
+			End If
+			Exit Do 
+		Else 
+		   TracePrint "没有找我的"
+		   Delay 500
+		   Call toMy()
+		End If
+		ReleaseCapture 
+	Loop
+End Function
+
+Function clickMyLogin()
+	Delay 500
+	KeepCapture
+	FindPic 0,0,0,0,"Attachment:my_click_login.png","050505",0,0.9,intX,intY
+	If intX > -1 And intY > -1 Then
+		Tap intX, intY
+		Delay 500
+		Call clearMobile()
+	End If
+	ReleaseCapture 
+End Function
+
+Function clearMobile()
+	
+	Do
+	Delay 500
+	KeepCapture
+	FindPic 0,0,0,0,"Attachment:input_mobile_clear.png","050505",0,0.9,intX,intY
+	If intX > -1 And intY > -1 Then
+		Tap intX, intY
+		Exit Do
+	End If
+	ReleaseCapture 	
+	Loop
+	
+End Function
+
+
+Function findLogout()
+	Do
+		Delay 500
+		KeepCapture
+		FindPic 0,0,0,0,"Attachment:logout.png","000000",0,0.9,intX,intY
+		If intX> -1 And intY > -1 Then
+			Tap intX, intY
+			Delay 500
+			Call clickLogoutConfirm()
+			Exit Do
+		Else  
+		    Swipe 200, 500, 200, 250
+		End If
+		ReleaseCapture 
+	Loop
+End Function
+
+Function clickLogoutConfirm()
+		Delay 500
+		KeepCapture
+		FindPic 0,0,0,0,"Attachment:logout_confirm.png","000000",0,0.9,intX,intY
+		If intX> -1 And intY > -1 Then
+			Tap intX, intY
+			Delay 500
+			
+		Else  
+		    call findLogout()
+		End If
+End Function
+
+Function loginJiema()
+	dim 返回值 = URL.Get("http://45.125.46.131:82/api/sign/username=nulladdress&password=moumima4")
+	TracePrint 返回值
+	dim token  = Split(返回值,"|")
+	jiemaToken = token(1)
+	TracePrint jiemaToken
+	Call getJiemaPhone()
+End Function
+
+Function getJiemaPhone()
+	//GET调用方法：http://45.125.46.131:8000/api/yh_qh/id=项目ID&operator=0&Region=0&card=0&phone=&loop=1&token=登录返回token
+	dim 返回值 = Url.Get("http://45.125.46.131:8000/api/yh_qh/id=16843&operator=0&Region=0&card=0&phone=&loop=1&token="&jiemaToken)
+	TracePrint 返回值
+End Function
+
+
+Function checkDialog()
+	KeepCapture
+		FindPic 0,0,0,0,"Attachment:close_dialog.png|Attachment:close_dialog2.png","000000",0,0.9,intX,intY
+		If intX > -1 And intY > -1 Then 
+			Delay 500
+			Tap intX, intY
+			TracePrint "有弹窗"
+		Else 
+			TracePrint "没有弹窗"
+		End If
+	ReleaseCapture 
+End Function
+
+
